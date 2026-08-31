@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Анатомия</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #000;
+    color: white;
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .screen {
+    display: none;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .screen.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* === ЗАСТАВКА === */
+  #intro-screen {
+    position: relative;
+    background: #000;
+  }
+  
+  .intro-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+  }
+  
+  .intro-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    padding: 20px;
+    pointer-events: none; 
+  }
+  
+  .start-btn {
+    padding: 18px 40px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #00d4ff;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #00d4ff;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.6), inset 0 0 20px rgba(0, 212, 255, 0.3);
+    animation: neonPulse 2s ease-in-out infinite;
+    min-width: 180px;
+    text-align: center;
+    z-index: 11;
+    pointer-events: auto; 
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  @keyframes neonPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.6), inset 0 0 20px rgba(0, 212, 255, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.9), inset 0 0 30px rgba(0, 212, 255, 0.5); }
+  }
+  
+  .start-btn:active { transform: scale(0.95); }
+
+  .sound-toggle {
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #00d4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 12;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+    pointer-events: auto;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  .sound-toggle:active { transform: scale(0.9); }
+  .sound-toggle svg { width: 22px; height: 22px; fill: #00d4ff; }
+
+  /* === ЭКРАН С ФОНАРИКОМ === */
+  #game-screen {
+    position: relative;
+    background: #000;
+    padding: 0;
+    overflow: hidden;
+  }
+  
+  .game-header {
+    width: 100%;
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.8);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 100;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  
+  .game-container {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    flex: 1;
+    margin: 5px auto;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+    touch-action: none;
+    flex-shrink: 1;
+  }
+
+  .bottom-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+  }
+  
+  .bottom-video {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+
+  .top-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: url('glowing-body.jpg') center/cover;
+    background-color: #0a0a1a;
+    z-index: 2;
+    -webkit-mask-image: radial-gradient(circle 40px at var(--x, 50%) var(--y, 50%), transparent 0%, transparent 15px, rgba(0,0,0,0.5) 28px, black 100%);
+    mask-image: radial-gradient(circle 40px at var(--x, 50%) var(--y, 50%), transparent 0%, transparent 15px, rgba(0,0,0,0.5) 28px, black 100%);
+  }
+
+  .organ-zone {
+    position: absolute;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    z-index: 10;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  #zone-brain { top: 5%; left: 50%; transform: translateX(-50%); width: 100px; height: 90px; }
+  #zone-heart { top: 25%; left: 50%; transform: translateX(-50%); width: 100px; height: 100px; }
+
+  .flashlight-cursor {
+    position: absolute;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    display: none;
+    z-index: 20;
+  }
+
+  .quiz-button {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 55px; height: 55px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #00d4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: #00d4ff;
+    cursor: pointer;
+    z-index: 50;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.8), inset 0 0 15px rgba(0, 212, 255, 0.4);
+    animation: neonPulse 2s ease-in-out infinite;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    pointer-events: auto;
+  }
+  
+  .quiz-button:active { transform: scale(0.9); }
+
+  .game-instructions {
+    padding: 8px 15px;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.3;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+  }
+
+  /* === МОДАЛЬНЫЕ ОКНА === */
+  .video-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .video-modal.show { display: flex; animation: fadeIn 0.3s; }
+  
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  
+  .video-content {
+    width: 100%;
+    max-width: 350px;
+    max-height: 95vh;
+    background: #1a1a2e;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .video-wrapper { position: relative; width: 100%; flex-shrink: 0; }
+  
+  .video-wrapper video {
+    width: 100%;
+    height: auto;
+    max-height: 55vh;
+    display: block;
+    object-fit: contain;
+    background: #000;
+  }
+  
+  .video-info { padding: 15px; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  
+  .video-info h2 {
+    font-size: 18px; margin-bottom: 8px; color: #00d4ff;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  
+  .video-info p { font-size: 13px; line-height: 1.4; margin-bottom: 12px; color: rgba(255,255,255,0.9); }
+  
+  .close-video {
+    width: 100%; padding: 12px; font-size: 13px; font-weight: bold;
+    color: #00d4ff; background: rgba(0, 0, 0, 0.8); border: 2px solid #00d4ff;
+    border-radius: 10px; cursor: pointer; letter-spacing: 1px;
+    text-transform: uppercase;
+    -webkit-appearance: none; appearance: none;
+  }
+  
+  .close-video:active { background: rgba(0, 212, 255, 0.2); }
+
+  /* === ЭКРАН ТЕСТА === */
+  #quiz-screen {
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+    padding: 10px;
+    overflow: hidden;
+  }
+  
+  .quiz-container { width: 100%; max-width: 400px; height: 100%; display: flex; flex-direction: column; }
+  
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 15px; background: rgba(0, 0, 0, 0.5); border-radius: 12px;
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    flex-shrink: 0;
+  }
+  
+  .quiz-title { font-size: 18px; color: #00d4ff; letter-spacing: 1px; text-transform: uppercase; }
+  
+  .back-btn {
+    padding: 8px 14px; font-size: 11px; color: #00d4ff;
+    background: rgba(0, 0, 0, 0.6); border: 2px solid #00d4ff; border-radius: 15px;
+    cursor: pointer;
+    -webkit-appearance: none; appearance: none;
+  }
+  
+  .back-btn:active { background: rgba(0, 212, 255, 0.2); }
+  
+  .question-block {
+    background: rgba(0, 0, 0, 0.6); border-radius: 15px; padding: 15px;
+    margin-top: 10px; border: 2px solid rgba(0, 212, 255, 0.4);
+    display: none; animation: slideIn 0.5s ease;
+    flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  
+  .question-block.active { display: block; }
+  
+  @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .question-text { font-size: 15px; font-weight: 600; margin-bottom: 15px; line-height: 1.3; color: white; }
+  
+  .answer-btn {
+    width: 100%; padding: 12px; margin-bottom: 10px; font-size: 13px; color: white;
+    background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(0, 212, 255, 0.4);
+    border-radius: 10px; cursor: pointer; text-align: left;
+    -webkit-appearance: none; appearance: none;
+  }
+  
+  .answer-btn:active { background: rgba(0, 212, 255, 0.2); }
+  .answer-btn.correct { background: rgba(0, 255, 100, 0.2); border-color: #00ff64; }
+  .answer-btn.wrong { background: rgba(255, 50, 50, 0.2); border-color: #ff3232; }
+
+  .results {
+    text-align: center; padding: 20px;
+    display: none; flex-direction: column; justify-content: center;
+    flex: 1;
+  }
+  
+  .results.show { display: flex; }
+  
+  .results h2 { font-size: 22px; margin-bottom: 15px; color: #00d4ff; letter-spacing: 1px; text-transform: uppercase; }
+  .score { font-size: 56px; font-weight: bold; color: #00d4ff; margin: 15px 0; }
+  .result-text { font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 20px; line-height: 1.4; }
+  
+  .restart-btn {
+    padding: 12px 30px; font-size: 13px; font-weight: bold; color: #00d4ff;
+    background: rgba(0, 0, 0, 0.8); border: 2px solid #00d4ff; border-radius: 50px;
+    cursor: pointer;
+    -webkit-appearance: none; appearance: none;
+  }
+  
+  .restart-btn:active { transform: scale(0.95); }
+
+  .progress-bar {
+    width: 100%; max-width: 360px; height: 5px;
+    background: rgba(255,255,255,0.1); border-radius: 10px;
+    margin: 5px auto; overflow: hidden; flex-shrink: 0;
+  }
+  
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #00d4ff, #0099ff);
+    transition: width 0.3s;
+  }
+</style>
+</head>
+<body>
+
+<!-- ЗАСТАВКА -->
+<div class="screen active" id="intro-screen">
+  <video class="intro-video" id="introVideo" autoplay loop playsinline>
+    <source src="particles.mp4" type="video/mp4">
+  </video>
+  
+  <button class="sound-toggle" id="soundToggle" onclick="toggleIntroSound()">
+    <svg id="soundOnIcon" viewBox="0 0 24 24">
+      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+    </svg>
+    <svg id="soundOffIcon" viewBox="0 0 24 24" style="display: none;">
+      <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3z"/>
+    </svg>
+  </button>
+  
+  <div class="intro-overlay">
+    <button class="start-btn" onclick="startGame()">Начать исследование</button>
+  </div>
+</div>
+
+<!-- ИГРА С ФОНАРИКОМ -->
+<div class="screen" id="game-screen">
+  <div class="game-header">Исследуйте тело фонариком</div>
+  
+  <div class="game-container" id="gameContainer">
+    <div class="bottom-layer">
+      <video class="bottom-video" autoplay loop muted playsinline>
+        <source src="organs-video.mp4" type="video/mp4">
+      </video>
+    </div>
+    
+    <div class="top-layer" id="topLayer"></div>
+    
+    <div class="organ-zone" id="zone-brain" onclick="openOrganVideo('brain')"></div>
+    <div class="organ-zone" id="zone-heart" onclick="openOrganVideo('heart')"></div>
+    
+    <button class="quiz-button" onclick="startQuiz()">?</button>
+    <div class="flashlight-cursor" id="flashlight"></div>
+  </div>
+  
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+  </div>
+  
+  <div class="game-instructions">
+    Водите пальцем по экрану<br>
+    Нажмите ? для теста
+  </div>
+</div>
+
+<!-- ТЕСТ -->
+<div class="screen" id="quiz-screen">
+  <div class="quiz-container">
+    <div class="quiz-header">
+      <div class="quiz-title">Тест</div>
+      <button class="back-btn" onclick="backToGame()">Назад</button>
+    </div>
+    
+    <div class="question-block active" id="q1">
+      <div class="question-text">1. Сколько литров крови перекачивает сердце за день?</div>
+      <button class="answer-btn" onclick="checkAnswer(1, 0)">Около 100 литров</button>
+      <button class="answer-btn" onclick="checkAnswer(1, 1)">Около 7,500 литров</button>
+      <button class="answer-btn" onclick="checkAnswer(1, 2)">Около 500 литров</button>
+    </div>
+    
+    <div class="question-block" id="q2">
+      <div class="question-text">2. Сколько нейронов в человеческом мозге?</div>
+      <button class="answer-btn" onclick="checkAnswer(2, 0)">86 миллиардов</button>
+      <button class="answer-btn" onclick="checkAnswer(2, 1)">10 миллиардов</button>
+      <button class="answer-btn" onclick="checkAnswer(2, 2)">1 триллион</button>
+    </div>
+    
+    <div class="results" id="results">
+      <h2>Тест завершён</h2>
+      <div class="score" id="finalScore">0/2</div>
+      <p class="result-text" id="resultText"></p>
+      <button class="restart-btn" onclick="location.reload()">Начать заново</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА: СЕРДЦЕ -->
+<div class="video-modal" id="modal-heart">
+  <div class="video-content">
+    <div class="video-wrapper">
+      <video id="video-heart" controls playsinline>
+        <source src="heart.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="video-info">
+      <h2>Сердце</h2>
+      <p>Сердце — мощный мышечный насос, бьётся около 100,000 раз в день, перекачивая 7,500 литров крови!</p>
+      <button class="close-video" onclick="closeModal('heart')">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА: МОЗГ -->
+<div class="video-modal" id="modal-brain">
+  <div class="video-content">
+    <div class="video-wrapper">
+      <video id="video-brain" controls playsinline>
+        <source src="brain.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="video-info">
+      <h2>Мозг</h2>
+      <p>Мозг — центр управления телом, 86 миллиардов нейронов. Электрические импульсы работают быстрее любого суперкомпьютера!</p>
+      <button class="close-video" onclick="closeModal('brain')">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let studiedOrgans = new Set();
+let score = 0;
+let answeredQuestions = new Set();
+let introSoundOn = true;
+
+function toggleIntroSound() {
+  const introVideo = document.getElementById('introVideo');
+  const soundOnIcon = document.getElementById('soundOnIcon');
+  const soundOffIcon = document.getElementById('soundOffIcon');
+  
+  introSoundOn = !introSoundOn;
+  
+  if (introSoundOn) {
+    introVideo.muted = false;
+    soundOnIcon.style.display = 'block';
+    soundOffIcon.style.display = 'none';
+  } else {
+    introVideo.muted = true;
+    soundOnIcon.style.display = 'none';
+    soundOffIcon.style.display = 'block';
+  }
+}
+
+function startGame() {
+  const introVideo = document.getElementById('introVideo');
+  if (introVideo) {
+    introVideo.pause();
+    introVideo.muted = true;
+    introVideo.currentTime = 0;
+  }
+  
+  document.getElementById('intro-screen').classList.remove('active');
+  document.getElementById('game-screen').classList.add('active');
+  initFlashlight();
+}
+
+function initFlashlight() {
+  const container = document.getElementById('gameContainer');
+  const topLayer = document.getElementById('topLayer');
+  const flashlight = document.getElementById('flashlight');
+  
+  container.addEventListener('mousemove', (e) => {
+    const rect = container.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    topLayer.style.setProperty('--x', x + 'px');
+    topLayer.style.setProperty('--y', y + 'px');
+    flashlight.style.display = 'block';
+    flashlight.style.left = x + 'px';
+    flashlight.style.top = y + 'px';
+  });
+  
+  container.addEventListener('mouseleave', () => { flashlight.style.display = 'none'; });
+  
+  container.addEventListener('touchstart', handleTouch, {passive: false});
+  container.addEventListener('touchmove', handleTouch, {passive: false});
+  
+  function handleTouch(e) {
+    e.preventDefault();
+    const rect = container.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    topLayer.style.setProperty('--x', x + 'px');
+    topLayer.style.setProperty('--y', y + 'px');
+  }
+}
+
+function openOrganVideo(organ) {
+  const modal = document.getElementById(`modal-${organ}`);
+  modal.classList.add('show');
+  
+  if (!studiedOrgans.has(organ)) {
+    studiedOrgans.add(organ);
+    updateProgress();
+  }
+  
+  const video = document.getElementById(`video-${organ}`);
+  video.currentTime = 0;
+}
+
+function closeModal(organ) {
+  const modal = document.getElementById(`modal-${organ}`);
+  modal.classList.remove('show');
+  const video = document.getElementById(`video-${organ}`);
+  video.pause();
+}
+
+function updateProgress() {
+  const percent = (studiedOrgans.size / 2) * 100;
+  document.getElementById('progressFill').style.width = percent + '%';
+}
+
+function startQuiz() {
+  document.getElementById('game-screen').classList.remove('active');
+  document.getElementById('quiz-screen').classList.add('active');
+}
+
+function backToGame() {
+  document.getElementById('quiz-screen').classList.remove('active');
+  document.getElementById('game-screen').classList.add('active');
+}
+
+function checkAnswer(questionNum, answerIndex) {
+  if (answeredQuestions.has(questionNum)) return;
+  answeredQuestions.add(questionNum);
+  
+  const correctAnswers = { 1: 1, 2: 0 };
+  const questionBlock = document.getElementById(`q${questionNum}`);
+  const buttons = questionBlock.querySelectorAll('.answer-btn');
+  
+  buttons.forEach((btn, index) => {
+    btn.disabled = true;
+    btn.style.pointerEvents = 'none';
+    if (index === correctAnswers[questionNum]) {
+      btn.classList.add('correct');
+      if (answerIndex === index) score++;
+    } else if (index === answerIndex) {
+      btn.classList.add('wrong');
+    }
+  });
+  
+  setTimeout(() => {
+    if (questionNum === 1) {
+      document.getElementById('q1').classList.remove('active');
+      document.getElementById('q2').classList.add('active');
+    } else {
+      showResults();
+    }
+  }, 1200);
+}
+
+function showResults() {
+  document.getElementById('q2').classList.remove('active');
+  document.querySelector('.quiz-title').textContent = 'Результаты';
+  
+  const results = document.getElementById('results');
+  results.classList.add('show');
+  document.getElementById('finalScore').textContent = `${score}/2`;
+  
+  let text = '';
+  if (score === 2) text = 'Превосходно! Вы эксперт в анатомии!';
+  else if (score === 1) text = 'Хорошо! Но можно изучить органы ещё раз.';
+  else text = 'Стоит ещё раз исследовать органы.';
+  
+  document.getElementById('resultText').textContent = text;
+}
+
+document.addEventListener('touchmove', function(e) {
+  if (e.target.closest('.game-container')) {
+    e.preventDefault();
+  }
+}, { passive: false });
+</script>
+
+</body>
+</html>
