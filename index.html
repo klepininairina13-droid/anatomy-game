@@ -34,7 +34,7 @@
     justify-content: center;
   }
 
-  /* === ЗАСТАВКА (вертикальное видео сторис) === */
+  /* === ЗАСТАВКА (видео в полный рост на всех устройствах) === */
   #intro-screen {
     position: relative;
     background: #000;
@@ -44,18 +44,23 @@
   
   .intro-video {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
   }
   
   .intro-overlay {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -64,7 +69,6 @@
     pointer-events: none; 
   }
   
-  /* КНОПКА С АНИМАЦИЕЙ КРУГ → ОВАЛ */
   .start-btn {
     padding: 25px 40px;
     font-size: 16px;
@@ -150,13 +154,12 @@
     flex-shrink: 0;
   }
   
-  /* Контейнер игры в формате сторис 9:16 */
   .game-container {
     position: relative;
-    width: 100%;
-    max-width: 450px;
+    width: 90%;
+    max-width: 380px;
     aspect-ratio: 9/16;
-    margin: 5px auto;
+    margin: 10px auto;
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
@@ -185,6 +188,7 @@
     background: url('glowing-body.jpg') center/cover;
     background-color: #0a0a1a;
     z-index: 2;
+    pointer-events: none;
     -webkit-mask-image: radial-gradient(circle 65px at var(--x, 50%) var(--y, 50%), transparent 0%, transparent 25px, rgba(0,0,0,0.5) 45px, black 100%);
     mask-image: radial-gradient(circle 65px at var(--x, 50%) var(--y, 50%), transparent 0%, transparent 25px, rgba(0,0,0,0.5) 45px, black 100%);
   }
@@ -192,15 +196,16 @@
   .organ-zone {
     position: absolute;
     border-radius: 50%;
-    background: transparent;
-    border: none;
-    z-index: 10;
+    background: rgba(255,255,255,0.01);
+    z-index: 100;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    pointer-events: auto;
+    touch-action: manipulation;
   }
   
-  #zone-brain { top: 5%; left: 50%; transform: translateX(-50%); width: 120px; height: 110px; }
-  #zone-heart { top: 25%; left: 50%; transform: translateX(-50%); width: 120px; height: 120px; }
+  #zone-brain { top: 3%; left: 50%; transform: translateX(-50%); width: 130px; height: 120px; }
+  #zone-heart { top: 22%; left: 50%; transform: translateX(-50%); width: 130px; height: 130px; }
 
   .flashlight-cursor {
     position: absolute;
@@ -210,12 +215,13 @@
     pointer-events: none;
     transform: translate(-50%, -50%);
     display: none;
-    z-index: 20;
+    z-index: 50;
   }
 
+  /* ЗНАК ВОПРОСА ОПУЩЕН НИЖЕ */
   .quiz-button {
     position: absolute;
-    top: 10px; right: 10px;
+    top: 25px; right: 15px;
     width: 55px; height: 55px;
     border-radius: 50%;
     background: rgba(0, 0, 0, 0.9);
@@ -227,13 +233,14 @@
     font-weight: bold;
     color: #00d4ff;
     cursor: pointer;
-    z-index: 50;
+    z-index: 100;
     box-shadow: 0 0 20px rgba(0, 212, 255, 0.8), inset 0 0 15px rgba(0, 212, 255, 0.4);
     animation: neonPulse 2s ease-in-out infinite;
     -webkit-tap-highlight-color: transparent;
     -webkit-appearance: none;
     appearance: none;
     pointer-events: auto;
+    touch-action: manipulation;
   }
   
   .quiz-button:active { transform: scale(0.9); }
@@ -248,7 +255,7 @@
     flex-shrink: 0;
   }
 
-  /* === МОДАЛЬНЫЕ ОКНА (вертикальные видео сторис) === */
+  /* === МОДАЛЬНЫЕ ОКНА === */
   .video-modal {
     display: none;
     position: fixed;
@@ -290,10 +297,8 @@
   
   .video-wrapper video {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     object-fit: cover;
     display: block;
   }
@@ -317,22 +322,33 @@
   
   .close-video:active { background: rgba(0, 212, 255, 0.2); }
 
-  /* === ЭКРАН ТЕСТА === */
+  /* === ЭКРАН ТЕСТА (КОМПАКТНАЯ РАМКА ПО ЦЕНТРУ) === */
   #quiz-screen {
     background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
-    padding: 10px;
+    padding: 20px;
     overflow: hidden;
     width: 100%;
     height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
-  .quiz-container { width: 100%; max-width: 400px; height: 100%; display: flex; flex-direction: column; }
+  .quiz-container { 
+    width: 100%; 
+    max-width: 420px; 
+    max-height: 90vh;
+    display: flex; 
+    flex-direction: column; 
+  }
   
   .quiz-header {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 15px; background: rgba(0, 0, 0, 0.5); border-radius: 12px;
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    padding: 12px 18px; background: rgba(0, 0, 0, 0.6); border-radius: 12px;
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
     flex-shrink: 0;
+    margin-bottom: 15px;
   }
   
   .quiz-title { font-size: 18px; color: #00d4ff; letter-spacing: 1px; text-transform: uppercase; }
@@ -347,10 +363,11 @@
   .back-btn:active { background: rgba(0, 212, 255, 0.2); }
   
   .question-block {
-    background: rgba(0, 0, 0, 0.6); border-radius: 15px; padding: 15px;
-    margin-top: 10px; border: 2px solid rgba(0, 212, 255, 0.4);
+    background: rgba(0, 0, 0, 0.6); border-radius: 15px; padding: 18px;
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
     display: none; animation: slideIn 0.5s ease;
-    flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    flex: 1;
   }
   
   .question-block.active { display: block; }
@@ -361,9 +378,10 @@
   
   .answer-btn {
     width: 100%; padding: 12px; margin-bottom: 10px; font-size: 13px; color: white;
-    background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(0, 212, 255, 0.4);
+    background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 212, 255, 0.4);
     border-radius: 10px; cursor: pointer; text-align: left;
     -webkit-appearance: none; appearance: none;
+    transition: all 0.2s;
   }
   
   .answer-btn:active { background: rgba(0, 212, 255, 0.2); }
@@ -392,7 +410,7 @@
   .restart-btn:active { transform: scale(0.95); }
 
   .progress-bar {
-    width: 100%; max-width: 450px; height: 5px;
+    width: 100%; max-width: 380px; height: 5px;
     background: rgba(255,255,255,0.1); border-radius: 10px;
     margin: 5px auto; overflow: hidden; flex-shrink: 0;
   }
@@ -525,11 +543,14 @@ let answeredQuestions = new Set();
 let introSoundOn = false;
 
 document.addEventListener('DOMContentLoaded', function() {
-  const introVideo = document.getElementById('introVideo');
   const organsVideo = document.getElementById('organsVideo');
-  
-  introVideo.play().catch(e => console.log('Autoplay prevented:', e));
-  organsVideo.play().catch(e => console.log('Autoplay prevented:', e));
+  organsVideo.muted = true;
+  organsVideo.loop = true;
+  organsVideo.play().catch(e => {
+    document.addEventListener('touchstart', function() {
+      organsVideo.play();
+    }, { once: true });
+  });
 });
 
 function toggleIntroSound() {
