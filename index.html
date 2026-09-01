@@ -34,7 +34,7 @@
     justify-content: center;
   }
 
-  /* === ЗАСТАВКА (видео в полный рост на всех устройствах) === */
+  /* === ЗАСТАВКА === */
   #intro-screen {
     position: relative;
     background: #000;
@@ -193,15 +193,16 @@
     mask-image: radial-gradient(circle 65px at var(--x, 50%) var(--y, 50%), transparent 0%, transparent 25px, rgba(0,0,0,0.5) 45px, black 100%);
   }
 
+  /* ЗОНЫ ОРГАНОВ - КЛИКАБЕЛЬНЫЕ НА ТЕЛЕФОНЕ */
   .organ-zone {
     position: absolute;
     border-radius: 50%;
-    background: rgba(255,255,255,0.01);
+    background: transparent;
     z-index: 100;
     cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
     pointer-events: auto;
     touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   
   #zone-brain { top: 3%; left: 50%; transform: translateX(-50%); width: 130px; height: 120px; }
@@ -218,7 +219,7 @@
     z-index: 50;
   }
 
-  /* ЗНАК ВОПРОСА ОПУЩЕН НИЖЕ */
+  /* КНОПКА ? - КЛИКАБЕЛЬНАЯ НА ТЕЛЕФОНЕ */
   .quiz-button {
     position: absolute;
     top: 25px; right: 15px;
@@ -322,7 +323,7 @@
   
   .close-video:active { background: rgba(0, 212, 255, 0.2); }
 
-  /* === ЭКРАН ТЕСТА (КОМПАКТНАЯ РАМКА ПО ЦЕНТРУ) === */
+  /* === ЭКРАН ТЕСТА === */
   #quiz-screen {
     background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
     padding: 20px;
@@ -456,11 +457,14 @@
     
     <div class="top-layer" id="topLayer"></div>
     
-    <div class="organ-zone" id="zone-brain" onclick="openOrganVideo('brain')"></div>
-    <div class="organ-zone" id="zone-heart" onclick="openOrganVideo('heart')"></div>
-    
     <button class="quiz-button" onclick="startQuiz()">?</button>
     <div class="flashlight-cursor" id="flashlight"></div>
+  </div>
+  
+  <!-- ЗОНЫ ОРГАНОВ ВЫНЕСЕНЫ ОТДЕЛЬНО (поверх контейнера) -->
+  <div id="zonesOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100;">
+    <div class="organ-zone" id="zone-brain" onclick="openOrganVideo('brain')" style="pointer-events: auto;"></div>
+    <div class="organ-zone" id="zone-heart" onclick="openOrganVideo('heart')" style="pointer-events: auto;"></div>
   </div>
   
   <div class="progress-bar">
@@ -588,7 +592,9 @@ function initFlashlight() {
   const container = document.getElementById('gameContainer');
   const topLayer = document.getElementById('topLayer');
   const flashlight = document.getElementById('flashlight');
+  const zonesOverlay = document.getElementById('zonesOverlay');
   
+  // Фонарик работает только на контейнере
   container.addEventListener('mousemove', (e) => {
     const rect = container.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -602,18 +608,34 @@ function initFlashlight() {
   
   container.addEventListener('mouseleave', () => { flashlight.style.display = 'none'; });
   
-  container.addEventListener('touchstart', handleTouch, {passive: false});
-  container.addEventListener('touchmove', handleTouch, {passive: false});
+  // Touch только для фонарика, не блокирует клики
+  container.addEventListener('touchstart', handleTouch, {passive: true});
+  container.addEventListener('touchmove', handleTouch, {passive: true});
   
   function handleTouch(e) {
-    e.preventDefault();
     const rect = container.getBoundingClientRect();
     const touch = e.touches[0];
     const x = touch.clientX - rect.left;
     const y = touch.clientY - rect.top;
     topLayer.style.setProperty('--x', x + 'px');
     topLayer.style.setProperty('--y', y + 'px');
+    flashlight.style.display = 'block';
+    flashlight.style.left = x + 'px';
+    flashlight.style.top = y + 'px';
   }
+  
+  // Позиционируем зоны органов поверх контейнера
+  function positionZones() {
+    const rect = container.getBoundingClientRect();
+    zonesOverlay.style.left = rect.left + 'px';
+    zonesOverlay.style.top = rect.top + 'px';
+    zonesOverlay.style.width = rect.width + 'px';
+    zonesOverlay.style.height = rect.height + 'px';
+  }
+  
+  positionZones();
+  window.addEventListener('resize', positionZones);
+  window.addEventListener('scroll', positionZones);
 }
 
 function openOrganVideo(organ) {
@@ -695,12 +717,6 @@ function showResults() {
   
   document.getElementById('resultText').textContent = text;
 }
-
-document.addEventListener('touchmove', function(e) {
-  if (e.target.closest('.game-container')) {
-    e.preventDefault();
-  }
-}, { passive: false });
 </script>
 
 </body>
